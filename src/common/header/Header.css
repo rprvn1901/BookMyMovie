@@ -1,0 +1,24 @@
+.header {
+    background: #222;
+    height: 36px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-right: 32px;
+    padding-left: 16px;
+}
+
+.Logo {
+    background: #ff7f7f;
+    height: 35px;
+    animation: app-logo-spin infinite 8s linear;
+}
+
+@keyframes app-logo-spin{
+    from { transform: scaleX(-1);}
+}
+.Login{
+   float: right;
+   display: flex;
+  justify-content: flex-end;
+}
+
