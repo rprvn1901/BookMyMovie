@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import './Header.css';
 import { Button } from '@material-ui/core';
 import logo from '../../assets/logo.svg';
@@ -38,7 +38,6 @@ TabContainer.propTypes = {
 }
 
 class Header extends Component {
-
     constructor() {
         super();
         this.state = {
@@ -74,33 +73,27 @@ class Header extends Component {
         this.setState({ value });
     }
 
-    loginClickHandler = () => {
-        this.state.username === "" ? this.setState({ usernameRequired: "dispBlock" }) : this.setState({ usernameRequired: "dispNone" });
-        this.state.password === "" ? this.setState({ passwordRequired: "dispBlock" }) : this.setState({ passwordRequired: "dispNone" });
-
+    //Handler method for login button onClick
+    loginClickHandler = async () => {
         if (this.state.username === "" || this.state.password === "") { return }
-
-        let that = this;
-        let dataLogin = null
-
-        let xhrLogin = new XMLHttpRequest();
-        xhrLogin.addEventListener("readystatechange", function () {
-            if (this.readyState === 4) {
-                console.log(xhrLogin.getResponseHeader('access-token'));
-
-                sessionStorage.setItem('uuid', JSON.parse(this.responseText).id);
-                sessionStorage.setItem('access-token', xhrLogin.getResponseHeader('access-token'));
-
-                that.setState({ loggedIn: true });
-                that.closeModalHandler();
-            }
-        })
-        xhrLogin.open("POST", this.props.baseUrl + "auth/login");
-        xhrLogin.setRequestHeader("Authorization", "Basic " + window.btoa(this.state.username + ":" + this.state.password));
-        xhrLogin.setRequestHeader("Content-Type", "application/json");
-        xhrLogin.setRequestHeader("Cache-Control", "no-cache");
-        xhrLogin.send(dataLogin);
+        await fetch(this.props.baseUrl + "auth/login",
+            {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic ' + window.btoa(this.state.username + ":" + this.state.password),
+                    'Cache-Control': 'no-cache'
+                },
+            })
+            .then(async response => {
+                const data = await response.json();
+                sessionStorage.setItem('uuid', data.id);
+                sessionStorage.setItem('access-token', response.headers.get('access-token'));
+                this.setState({ loggedIn: true })
+            })
+            .then(this.closeModalHandler());
     }
+
 
     inputUsernameChangeHandler = (e) => {
         this.setState({ username: e.target.value })
@@ -136,6 +129,7 @@ class Header extends Component {
 
     }
 
+    //Handler method for logout button onClick
     logoutHandler = () => {
         console.log(sessionStorage.getItem('access-token'));
         sessionStorage.removeItem('uuid');
@@ -144,145 +138,108 @@ class Header extends Component {
 
     }
 
-    registerClickHandler = () => {
-        this.state.email === "" ? this.setState({ emailRequired: "dispBlock" }) : this.setState({ emailRequired: "dispNone" });
-        this.state.firstname === "" ? this.setState({ firstnameRequired: "dispBlock" }) : this.setState({ firstnameRequired: "dispNone" });
-        this.state.lastname === "" ? this.setState({ lastnameRequired: "dispBlock" }) : this.setState({ lastnameRequired: "dispNone" });
-        this.state.mobile === "" ? this.setState({ mobileRequired: "dispBlock" }) : this.setState({ mobileRequired: "dispNone" });
-        this.state.passwordReg === "" ? this.setState({ passwordRegRequired: "dispBlock" }) : this.setState({ passwordRegRequired: "dispNone" });
+    //Handler method for Register button onClick
+    registerClickHandler = async () => {
         if (this.state.email === "" || this.state.firstname === "" || this.state.lastname === "" || this.state.mobile === "" || this.state.passwordReg === "") { return; }
-
-        let that = this;
-        let dataSignUp = JSON.stringify({
-            "email_address": this.state.email,
-            "first_name": this.state.firstname,
-            "last_name": this.state.lastname,
-            "mobile_number": this.state.mobile,
-            "password": this.state.passwordReg
-        })
-
-        let xhrSignup = new XMLHttpRequest();
-        xhrSignup.addEventListener("readystatechange", function () {
-            if (this.readyState === 4) {
-                console.log(this.responseText);
-                that.setState({ registrationSuccess: true })
-            }
-        })
-
-        xhrSignup.open("POST", this.props.baseUrl + "signup");
-        xhrSignup.setRequestHeader("Content-Type", "application/json");
-        xhrSignup.setRequestHeader("Cache-Control", "no-cache");
-        xhrSignup.send(dataSignUp);
-
+        await fetch(this.props.baseUrl + "signup",
+            {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache'
+                },
+            })
+            .then(async response => {
+                this.setState({ registrationSuccess: true })
+            })
     }
 
-// const isLoggedIn = true;
-// const Header = function (props) {
-//     return (
-//         <div className="header">
-//             <img src={movielogo} className="Logo" />
-
-//             <Button variant="contained" color="default" className="Login">
-//                 Login
-//              </Button>
-  
-//         </div>
-//     )
-// }
-
-
-render() {
-    return (
-        <div>
-            <header className="app-header">
-                <img src={logo} className="app-logo" alt="logo" />
-                {!this.state.loggedIn ?
-                    <div className="login-button">
-                        <Button variant="contained" color="default" onClick={this.openModalHandler}>Login</Button>
-                    </div>
-                    :
-                    <div className="login-button">
-                        <Button variant="contained" color="default" onClick={this.logoutHandler}>Logout</Button>
-                    </div>}
-                {this.props.showBookShowButton === "true" && !this.state.loggedIn ?
-                    <div className="bookshow-button">
-                        <Button variant="contained" onClick={this.openModalHandler} color="primary">
-                            BOOK SHOW</Button>
-                    </div> : ""}
-                {this.props.showBookShowButton === "true" && this.state.loggedIn ?
-                    <div className="bookshow-button">
-                        <Link to={"/bookshow/" + this.props.id}><Button variant="contained" color="primary">
-                            BOOK SHOW</Button></Link>
-                    </div> : ""}
-            </header>
-            <Modal
-                ariaHideApp={false}
-                isOpen={this.state.modalIsOpen}
-                contentLabel="Login"
-                onRequestClose={this.closeModalHandler}
-                style={customStyles}>
-                <Tabs className="tabs" value={this.state.value} onChange={this.tabChangeHandler}>
-                    <Tab label="Login" />
-                    <Tab label="Register" />
-                </Tabs>
-                {this.state.value === 0 &&
-                    <TabContainer>
+    render() {
+        return (
+            <div>
+                <header className="app-header">
+                    <img src={logo} className="app-logo" alt="logo" />
+                    {!this.state.loggedIn ?
+                        <div className="login-button">
+                            <Button variant="contained" color="default" onClick={this.openModalHandler}>Login</Button>
+                        </div>
+                        :
+                        <div className="login-button">
+                            <Button variant="contained" color="default" onClick={this.logoutHandler}>Logout</Button>
+                        </div>}
+                    {this.props.showBookShowButton === "true" && !this.state.loggedIn ?
+                        <div className="bookshow-button">
+                            <Button variant="contained" onClick={this.openModalHandler} color="primary">
+                                BOOK SHOW</Button>
+                        </div> : ""}
+                    {this.props.showBookShowButton === "true" && this.state.loggedIn ?
+                        <div className="bookshow-button">
+                            <Link to={"/bookshow/" + this.props.id}><Button variant="contained" color="primary">
+                                BOOK SHOW</Button></Link>
+                        </div> : ""}
+                </header>
+                <Modal
+                    ariaHideApp={false}
+                    isOpen={this.state.modalIsOpen}
+                    contentLabel="Login"
+                    onRequestClose={this.closeModalHandler}
+                    style={customStyles}>
+                    <Tabs className="tabs" value={this.state.value} onChange={this.tabChangeHandler}>
+                        <Tab label="Login" />
+                        <Tab label="Register" />
+                    </Tabs>
+                    {this.state.value === 0 &&
+                        <TabContainer>
+                            <FormControl required>
+                                <InputLabel htmlFor="username"> Username </InputLabel>
+                                <Input id="username" type="text" username={this.state.username} onChange={this.inputUsernameChangeHandler} />
+                                <FormHelperText className={this.state.usernameRequired}><span className="red">required</span></FormHelperText>
+                            </FormControl><br /><br />
+                            <FormControl required>
+                                <InputLabel htmlFor="password"> Password </InputLabel>
+                                <Input id="password" type="password" onChange={this.inputPasswordChangeHandler} />
+                                <FormHelperText className={this.state.passwordRequired}><span className="red">required</span></FormHelperText>
+                            </FormControl><br /><br />
+                            <Button variant="contained" color="primary" onClick={this.loginClickHandler}>LOGIN</Button>
+                        </TabContainer>}
+                    {this.state.value === 1 && <TabContainer>
                         <FormControl required>
-                            <InputLabel htmlFor="username"> Username </InputLabel>
-                            <Input id="username" type="text" username={this.state.username} onChange={this.inputUsernameChangeHandler} />
-                            <FormHelperText className={this.state.usernameRequired}><span className="red">required</span></FormHelperText>
+                            <InputLabel htmlFor="email">Email</InputLabel>
+                            <Input id="email" type="email" onChange={this.inputEmailChangeHandler} />
+                            <FormHelperText className={this.state.emailRequired}><span className="red">required</span></FormHelperText>
                         </FormControl><br /><br />
                         <FormControl required>
-                            <InputLabel htmlFor="password"> Password </InputLabel>
-                            <Input id="password" type="password" onChange={this.inputPasswordChangeHandler} />
-                            <FormHelperText className={this.state.passwordRequired}><span className="red">required</span></FormHelperText>
+                            <InputLabel htmlFor="firstname">First Name</InputLabel>
+                            <Input id="firstname" onChange={this.inputFirstnameChangeHandler} />
+                            <FormHelperText className={this.state.firstnameRequired}><span className="red">required</span></FormHelperText>
                         </FormControl><br /><br />
-                        <Button variant="contained" color="primary" onClick={this.loginClickHandler}>LOGIN</Button>
-                    </TabContainer>}
-                {this.state.value === 1 && <TabContainer>
-                    <FormControl required>
-                        <InputLabel htmlFor="email">Email</InputLabel>
-                        <Input id="email" type="email" onChange={this.inputEmailChangeHandler} />
-                        <FormHelperText className={this.state.emailRequired}><span className="red">required</span></FormHelperText>
-                    </FormControl><br /><br />
-                    <FormControl required>
-                        <InputLabel htmlFor="firstname">First Name</InputLabel>
-                        <Input id="firstname" onChange={this.inputFirstnameChangeHandler} />
-                        <FormHelperText className={this.state.firstnameRequired}><span className="red">required</span></FormHelperText>
-                    </FormControl><br /><br />
-                    <FormControl required>
-                        <InputLabel htmlFor="lastname">Last Name</InputLabel>
-                        <Input id="lastname" onChange={this.inputLastnameChangeHandler} />
-                        <FormHelperText className={this.state.lastnameRequired}><span className="red">required</span></FormHelperText>
-                    </FormControl><br /><br />
-                    <FormControl required>
-                        <InputLabel htmlFor="mobile">Mobile Number</InputLabel>
-                        <Input id="mobile" onChange={this.inputMobileChangeHandler} />
-                        <FormHelperText className={this.state.mobileRequired}><span className="red">required</span></FormHelperText>
-                    </FormControl><br /><br />
-                    <FormControl required aria-describedby="name-helper-text">
-                        <InputLabel htmlFor="passwordReg">Password</InputLabel>
-                        <Input type="password" id="passwordReg" onChange={this.inputPasswordRegChangeHandler} />
-                        <FormHelperText className={this.state.passwordRegRequired}><span className="red">required</span></FormHelperText>
-                    </FormControl><br /><br />
-                    {this.state.registrationSuccess === true &&
-                        <FormControl>
-                            <span className="successText"> Registration Successful. Please Login!</span>
-                        </FormControl>}<br /><br />
-                    <Button variant="contained" color="primary" onClick={this.registerClickHandler}>
-                        REGISTER
+                        <FormControl required>
+                            <InputLabel htmlFor="lastname">Last Name</InputLabel>
+                            <Input id="lastname" onChange={this.inputLastnameChangeHandler} />
+                            <FormHelperText className={this.state.lastnameRequired}><span className="red">required</span></FormHelperText>
+                        </FormControl><br /><br />
+                        <FormControl required>
+                            <InputLabel htmlFor="mobile">Mobile Number</InputLabel>
+                            <Input id="mobile" onChange={this.inputMobileChangeHandler} />
+                            <FormHelperText className={this.state.mobileRequired}><span className="red">required</span></FormHelperText>
+                        </FormControl><br /><br />
+                        <FormControl required aria-describedby="name-helper-text">
+                            <InputLabel htmlFor="passwordReg">Password</InputLabel>
+                            <Input type="password" id="passwordReg" onChange={this.inputPasswordRegChangeHandler} />
+                            <FormHelperText className={this.state.passwordRegRequired}><span className="red">required</span></FormHelperText>
+                        </FormControl><br /><br />
+                        {this.state.registrationSuccess === true &&
+                            <FormControl>
+                                <span className="successText"> Registration Successful. Please Login!</span>
+                            </FormControl>}<br /><br />
+                        <Button variant="contained" color="primary" onClick={this.registerClickHandler}>
+                            REGISTER
                     </Button>
-                </TabContainer>}
-
-            </Modal>
-        </div>
-    )
-}
-
+                    </TabContainer>}
+                </Modal>
+            </div>
+        )
+    }
 }
 export default Header;
-
-
-
-  
 

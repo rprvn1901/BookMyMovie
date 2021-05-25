@@ -7,18 +7,44 @@
     padding-left: 16px;
 }
 
-.Logo {
-    background: #ff7f7f;
-    height: 35px;
-    animation: app-logo-spin infinite 8s linear;
+.app-header{
+    background-color: #222;
+    height:36px;
+    padding: 8px 32px 8px 16px;
 }
 
+.login-button, .bookshow-button
+{
+    float:right;
+}
+
+.bookshow-button
+{
+    margin-right:8px;
+}
+
+.app-logo{
+    background: #ff7f7f;
+    height:35px;
+    animation: app-logo-spin infinite 8s linear;
+}
 @keyframes app-logo-spin{
     from { transform: scaleX(-1);}
 }
-.Login{
-   float: right;
-   display: flex;
-  justify-content: flex-end;
+  
+.tabs{
+    margin-bottom: 20px;
+}
+.dispNone{
+    display:none;
+}
+.dispBlock {
+    display: block;
+}
+
+
+.red
+{
+    color: red;
 }
 
