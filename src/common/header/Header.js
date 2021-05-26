@@ -7,6 +7,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator'
 import InputLabel from '@material-ui/core/InputLabel';
 import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types';
@@ -75,6 +76,9 @@ class Header extends Component {
 
     //Handler method for login button onClick
     loginClickHandler = async () => {
+        this.state.username === "" ? this.setState({ usernameRequired: "dispBlock" }) : this.setState({ usernameRequired: "dispNone" });
+        this.state.password === "" ? this.setState({ passwordRequired: "dispBlock" }) : this.setState({ passwordRequired: "dispNone" });
+
         if (this.state.username === "" || this.state.password === "") { return }
         await fetch(this.props.baseUrl + "auth/login",
             {
@@ -140,6 +144,12 @@ class Header extends Component {
 
     //Handler method for Register button onClick
     registerClickHandler = async () => {
+        this.state.email === "" ? this.setState({ emailRequired: "dispBlock" }) : this.setState({ emailRequired: "dispNone" });
+        this.state.firstname === "" ? this.setState({ firstnameRequired: "dispBlock" }) : this.setState({ firstnameRequired: "dispNone" });
+        this.state.lastname === "" ? this.setState({ lastnameRequired: "dispBlock" }) : this.setState({ lastnameRequired: "dispNone" });
+        this.state.mobile === "" ? this.setState({ mobileRequired: "dispBlock" }) : this.setState({ mobileRequired: "dispNone" });
+        this.state.passwordReg === "" ? this.setState({ passwordRegRequired: "dispBlock" }) : this.setState({ passwordRegRequired: "dispNone" });
+
         if (this.state.email === "" || this.state.firstname === "" || this.state.lastname === "" || this.state.mobile === "" || this.state.passwordReg === "") { return; }
         await fetch(this.props.baseUrl + "signup",
             {
@@ -235,6 +245,8 @@ class Header extends Component {
                         <Button variant="contained" color="primary" onClick={this.registerClickHandler}>
                             REGISTER
                     </Button>
+
+
                     </TabContainer>}
                 </Modal>
             </div>

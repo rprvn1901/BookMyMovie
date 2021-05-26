@@ -1,11 +1,3 @@
-.header {
-    background: #222;
-    height: 36px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    padding-right: 32px;
-    padding-left: 16px;
-}
 
 .app-header{
     background-color: #222;
@@ -31,7 +23,7 @@
 @keyframes app-logo-spin{
     from { transform: scaleX(-1);}
 }
-  
+
 .tabs{
     margin-bottom: 20px;
 }
@@ -41,7 +33,6 @@
 .dispBlock {
     display: block;
 }
-
 
 .red
 {
