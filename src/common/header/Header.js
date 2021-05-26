@@ -169,7 +169,7 @@ class Header extends Component {
                         </div>}
                     {this.props.showBookShowButton === "true" && !this.state.loggedIn ?
                         <div className="bookshow-button">
-                            <Button variant="contained" color="primary">
+                            <Button variant="contained" onClick={this.openModalHandler} color="primary">
                                 BOOK SHOW</Button>
                         </div> : ""}
                     {this.props.showBookShowButton === "true" && this.state.loggedIn ?
